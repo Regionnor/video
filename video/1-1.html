@@ -6,22 +6,52 @@
     <title>迷失东京-食贫道(1080p)|Region的影视厅</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
-        .wrap { position: fixed; inset: 0; width: 100%; height: 100%; }
-        iframe { width: 100%; height: 100%; border: 0; display: block; background: #000; }
-        .back {
-            position: fixed; top: 12px; left: 12px; z-index: 10;
-            padding: 6px 12px; border-radius: 6px;
-            background: rgba(0,0,0,0.55); color: #fff; font-size: 13px;
-            text-decoration: none; font-family: 'Microsoft YaHei', Arial, sans-serif;
-        }
-        .back:hover { background: rgba(0,0,0,0.8); }
+        html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Microsoft YaHei', Arial, sans-serif; }
+        .wrap { position: fixed; inset: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; }
+        video { width: 100%; height: 100%; background: #000; }
+        .bar { position: fixed; top: 12px; left: 12px; z-index: 10; }
+        .bar a, .bar button { display: inline-block; padding: 6px 12px; margin-right: 6px; border-radius: 6px; background: rgba(0,0,0,0.55); color: #fff; font-size: 13px; text-decoration: none; border: 0; cursor: pointer; }
+        .bar a:hover, .bar button:hover { background: rgba(0,0,0,0.85); }
+        .msg { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; color: #eee; text-align: center; padding: 20px; z-index: 5; }
+        .msg span { background: rgba(0,0,0,0.65); padding: 14px 18px; border-radius: 8px; line-height: 1.6; }
     </style>
 </head>
 <body>
-    <a class="back" href="1.html">&#8592; 返回列表</a>
-    <div class="wrap">
-        <iframe src="https://jx.77flv.cc/?url=https://v.cdnlz19.com/20240311/20786_d9a2db19/index.m3u8" allow="autoplay; encrypted-media; fullscreen" allowfullscreen referrerpolicy="no-referrer"></iframe>
+    <div class="bar">
+        <a href="1.html">&#8592; 返回列表</a>
+        <button onclick="location.reload()">&#8635; 重新加载</button>
     </div>
+    <div class="wrap">
+        <video id="v" controls autoplay playsinline></video>
+    </div>
+    <div class="msg" id="msg"><span>视频加载失败：该视频源可能已失效，或当前网络环境无法访问。<br>请返回列表换一个线路试试。</span></div>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+    <script>
+        var SRC = "https://v.cdnlz19.com/20240311/20786_d9a2db19/index.m3u8";
+        var video = document.getElementById('v');
+        var msg = document.getElementById('msg');
+        function showErr() { msg.style.display = 'flex'; }
+        function load(useProxy) {
+            var url = useProxy ? "/api/hls?url=" + encodeURIComponent(SRC) : SRC;
+            if (window.Hls && Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () { video.play().catch(function () {}); });
+                hls.on(Hls.Events.ERROR, function (e, d) {
+                    if (!d.fatal) return;
+                    if (!useProxy) { try { hls.destroy(); } catch (x) {} load(true); }
+                    else { showErr(); }
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.play().catch(function () {});
+                video.addEventListener('error', function () { if (!useProxy) load(true); else showErr(); });
+            } else {
+                showErr();
+            }
+        }
+        load(false);
+    </script>
 </body>
 </html>
