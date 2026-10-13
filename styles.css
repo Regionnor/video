@@ -1,0 +1,54 @@
+:root{
+  --bg:#eef1fb;
+  --card:#ffffff;
+  --ink:#1f2540;
+  --muted:#7a82a3;
+  --grad:linear-gradient(135deg,#7b5cff 0%,#4a8cff 100%);
+  --grad2:linear-gradient(135deg,#ff7eb3 0%,#ff758c 100%);
+  --shadow:0 10px 30px rgba(80,90,160,.15);
+  --shadow-hover:0 18px 42px rgba(80,90,160,.28);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 8% -10%, #e7e0ff 0%, transparent 50%),
+    radial-gradient(1000px 520px at 100% 0%, #ffe3f1 0%, transparent 45%),
+    var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  padding-bottom:40px;
+}
+.site-header{text-align:center;padding:56px 20px 26px}
+.site-header .logo{font-size:48px;line-height:1;margin-bottom:8px;filter:drop-shadow(0 6px 14px rgba(123,92,255,.3))}
+.site-header h1{
+  font-size:30px;letter-spacing:1px;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  display:inline-block;
+}
+.site-header p{color:var(--muted);margin-top:10px;font-size:14px}
+.subhead{
+  max-width:960px;margin:4px auto 14px;padding:0 18px;
+  font-size:15px;color:var(--muted);font-weight:600;
+}
+.container{
+  max-width:960px;margin:0 auto;padding:0 18px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:20px;
+}
+.card{
+  background:var(--card);border-radius:18px;padding:22px 18px;text-decoration:none;color:var(--ink);
+  box-shadow:var(--shadow);transition:transform .25s ease,box-shadow .25s ease;
+  display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden;
+}
+.card::before{content:"";position:absolute;inset:0;background:var(--grad);opacity:0;transition:opacity .25s ease;z-index:0}
+.card:hover{transform:translateY(-8px);box-shadow:var(--shadow-hover)}
+.card:hover::before{opacity:.06}
+.card .ico{font-size:40px;z-index:1;margin-bottom:12px;transition:transform .25s ease}
+.card:hover .ico{transform:scale(1.12)}
+.card .title{font-size:17px;font-weight:700;z-index:1}
+.card .sub{font-size:12.5px;color:var(--muted);margin-top:6px;z-index:1}
+.card .badge{position:absolute;top:12px;right:12px;font-size:11px;background:var(--grad2);color:#fff;padding:3px 9px;border-radius:999px;z-index:1}
+.back-wrap{text-align:center;margin-top:26px}
+.back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:#fff;color:var(--ink);padding:9px 18px;border-radius:999px;box-shadow:var(--shadow);font-size:14px;font-weight:600;transition:transform .2s ease,box-shadow .2s ease}
+.back:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:34px;padding:0 22px;line-height:1.7}

@@ -5,51 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>抓娃娃(BF线路)|Region的影视厅</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Microsoft YaHei', Arial, sans-serif; }
-        .wrap { position: fixed; inset: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; }
-        video { width: 100%; height: 100%; background: #000; }
-        .bar { position: fixed; top: 12px; left: 12px; z-index: 10; }
-        .bar a, .bar button { display: inline-block; padding: 6px 12px; margin-right: 6px; border-radius: 6px; background: rgba(0,0,0,0.55); color: #fff; font-size: 13px; text-decoration: none; border: 0; cursor: pointer; }
-        .bar a:hover, .bar button:hover { background: rgba(0,0,0,0.85); }
-        .msg { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; color: #eee; text-align: center; padding: 20px; z-index: 5; }
-        .msg span { background: rgba(0,0,0,0.65); padding: 14px 18px; border-radius: 8px; line-height: 1.6; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html, body { width:100%; height:100%; background:#0b0b12; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei",sans-serif; }
+        .wrap { position:fixed; inset:0; background:#000; display:flex; align-items:center; justify-content:center; }
+        video { width:100%; height:100%; background:#000; }
+        .topbar { position:fixed; top:0; left:0; right:0; z-index:10; display:flex; align-items:center; gap:12px; padding:12px 14px; background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,0)); color:#fff; }
+        .topbar a { display:inline-flex; align-items:center; gap:6px; text-decoration:none; color:#fff; background:rgba(255,255,255,.16); padding:7px 13px; border-radius:999px; font-size:13px; backdrop-filter:blur(6px); }
+        .topbar a:hover { background:rgba(255,255,255,.3); }
+        .topbar .name { font-size:14px; font-weight:600; }
+        .spinner { position:fixed; inset:0; z-index:20; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; background:#0b0b12; color:#cfd2e6; transition:opacity .4s; }
+        .spinner.hide { opacity:0; pointer-events:none; }
+        .ring { width:46px; height:46px; border-radius:50%; border:4px solid rgba(255,255,255,.15); border-top-color:#7b5cff; animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .msg { position:fixed; inset:0; display:none; align-items:center; justify-content:center; color:#eee; text-align:center; padding:20px; z-index:15; }
+        .msg span { background:rgba(0,0,0,.6); padding:14px 18px; border-radius:10px; line-height:1.6; max-width:80%; }
     </style>
 </head>
 <body>
-    <div class="bar">
-        <a href="3.html">&#8592; 返回列表</a>
-        <button onclick="location.reload()">&#8635; 重新加载</button>
+    <div class="topbar">
+        <a href="3.html">← 返回</a>
+        <span class="name">抓娃娃(BF线路)|Region的影视厅</span>
     </div>
-    <div class="wrap">
-        <video id="v" controls autoplay playsinline></video>
-    </div>
-    <div class="msg" id="msg"><span>视频加载失败：该视频源可能已失效，或当前网络环境无法访问。<br>请返回列表换一个线路试试。</span></div>
+    <div class="spinner" id="spin"><div class="ring"></div><div>视频加载中…</div></div>
+    <div class="msg" id="msg"><span>视频加载失败：该视频源可能已失效，或当前网络无法访问。<br>请返回列表换一个线路试试。</span></div>
+    <div class="wrap"><video id="v" controls autoplay playsinline></video></div>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
     <script>
         var SRC = "https://c1.rrcdnbf3.com/video/zhuawawa/HD/index.m3u8";
-        var video = document.getElementById('v');
-        var msg = document.getElementById('msg');
-        function showErr() { msg.style.display = 'flex'; }
+        var video = document.getElementById('v'), spin = document.getElementById('spin'), msg = document.getElementById('msg');
+        function showErr() { spin.classList.add('hide'); msg.style.display = 'flex'; }
+        function hideSpin() { spin.classList.add('hide'); }
         function load(useProxy) {
             var url = useProxy ? "/api/hls?url=" + encodeURIComponent(SRC) : SRC;
             if (window.Hls && Hls.isSupported()) {
                 var hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () { video.play().catch(function () {}); });
-                hls.on(Hls.Events.ERROR, function (e, d) {
-                    if (!d.fatal) return;
-                    if (!useProxy) { try { hls.destroy(); } catch (x) {} load(true); }
-                    else { showErr(); }
-                });
+                hls.loadSource(url); hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () { hideSpin(); video.play().catch(function () {}); });
+                hls.on(Hls.Events.ERROR, function (e, d) { if (!d.fatal) return; if (!useProxy) { try { hls.destroy(); } catch (x) {} load(true); } else { showErr(); } });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
-                video.play().catch(function () {});
+                video.src = url; video.play().catch(function () {});
+                video.addEventListener('loadedmetadata', hideSpin);
                 video.addEventListener('error', function () { if (!useProxy) load(true); else showErr(); });
-            } else {
-                showErr();
-            }
+            } else { showErr(); }
         }
         load(false);
     </script>
