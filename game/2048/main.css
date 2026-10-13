@@ -4,6 +4,10 @@
     font-family: "YouYuan";
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     background: #d7d3b6;
 }
